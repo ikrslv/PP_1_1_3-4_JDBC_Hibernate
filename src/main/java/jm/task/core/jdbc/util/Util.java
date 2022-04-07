@@ -6,19 +6,24 @@ import java.sql.SQLException;
 
 public class Util {
     // реализуйте настройку соеденения с БД
-    private static final String userName = "root";
-    private static final String password = "8Cim3_b6r";
-    private static final String connectionURL = "jdbc:mysql://localhost:3306/usersdb";
-    public static Connection connection = null;
 
-    public static Connection getConnection() {
+    private static Connection connection = null;
+
+    private Util() {
+
+    }
+
+    static {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            connection = DriverManager.getConnection(connectionURL, userName, password);
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/usersdb", "root", "8Cim3_b6r");
             System.out.println("Connection is completed!");
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    public static Connection getConnection() {
         return connection;
     }
 
