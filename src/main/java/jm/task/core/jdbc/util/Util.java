@@ -17,23 +17,31 @@ import java.sql.SQLException;
 public class Util {
     // реализуйте настройку соеденения с БД
 
-    private static Connection connection = null;
+    private static Util CONNECTION;
 
     private Util() {
-
     }
 
-    static {
+    private static Util getCONNECTION() {
+        if (CONNECTION == null) {
+            CONNECTION = new Util();
+        }
+        return CONNECTION;
+    }
+
+    private static Connection connection = null;
+    private static String user = "root";
+    private static String password = "8Cim3_b6r";
+    private static String urlConnection = "jdbc:mysql://localhost:3306/usersdb";
+
+    public static Connection getConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/usersdb", "root", "8Cim3_b6r");
+            connection = DriverManager.getConnection(urlConnection, user, password);
             System.out.println("Connection is completed!");
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-    }
-
-    public static Connection getConnection() {
         return connection;
     }
 
@@ -50,7 +58,6 @@ public class Util {
     private static SessionFactory sessionFactory;
 
     public static SessionFactory getSessionFactory() {
-
         if (sessionFactory == null) {
             try {
                 Configuration configuration = new Configuration();
@@ -63,11 +70,8 @@ public class Util {
                 properties.put(Environment.USER, "root");
                 properties.put(Environment.PASS, "8Cim3_b6r");
                 properties.put(Environment.URL, "jdbc:mysql://localhost:3306/usersdb");
-
                 properties.put(Environment.SHOW_SQL, "true");
-
                 properties.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
-
                 properties.put(Environment.HBM2DDL_AUTO, "create");
 
                 configuration.setProperties(properties);

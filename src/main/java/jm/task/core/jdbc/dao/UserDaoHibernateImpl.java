@@ -6,6 +6,8 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
@@ -17,71 +19,86 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void createUsersTable() {
-        Session session = Util.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
-        Query query = session.createSQLQuery
-                        ("CREATE TABLE IF NOT EXISTS user (id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, name VARCHAR (255), lastName VARCHAR(255), age INT NOT NULL)")
-                .addEntity(User.class);
-        query.executeUpdate();
-        transaction.commit();
-        session.close();
-        System.out.println("Table is created");
+        try (Session session = Util.getSessionFactory().openSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.createSQLQuery
+                            ("CREATE TABLE IF NOT EXISTS user (id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, name VARCHAR (255), lastName VARCHAR(255), age INT NOT NULL)")
+                    .addEntity(User.class).executeUpdate();
+            transaction.commit();
+            transaction.rollback();
+            System.out.println("Table is created");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void dropUsersTable() {
-        Session session = Util.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
-        Query query = session.createSQLQuery
-                        ("DROP TABLE IF EXISTS user")
-                .addEntity(User.class);
-        query.executeUpdate();
-        transaction.commit();
-        session.close();
-        System.out.println("Table is dropped.");
+        try (Session session = Util.getSessionFactory().openSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.createSQLQuery
+                            ("DROP TABLE IF EXISTS user")
+                    .addEntity(User.class).executeUpdate();
+            transaction.commit();
+            transaction.rollback();
+            System.out.println("Table is dropped.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        Session session = Util.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
-        session.save(new User(name, lastName, age));
-        transaction.commit();
-        session.close();
-        System.out.println("New User is saved.");
+        try (Session session = Util.getSessionFactory().openSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.save(new User(name, lastName, age));
+            transaction.commit();
+            transaction.rollback();
+            System.out.println("New User is saved.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void removeUserById(long id) {
-        Session session = Util.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
-        User user = session.get(User.class, id);
-        session.delete(user);
-        transaction.commit();
-        session.close();
+        try (Session session = Util.getSessionFactory().openSession()) {
+            Transaction transaction = session.beginTransaction();
+            User user = session.get(User.class, id);
+            session.delete(user);
+            transaction.commit();
+            transaction.rollback();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public List<User> getAllUsers() {
-        Session session = Util.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
-        Query query = session.createSQLQuery("SELECT * FROM user").addEntity(User.class);
-        List<User> users = query.list();
-        transaction.commit();
-        session.close();
+        List<User> users = new ArrayList<>();
+        try (Session session = Util.getSessionFactory().openSession()) {
+            Transaction transaction = session.beginTransaction();
+            users = session.createSQLQuery("SELECT * FROM user").addEntity(User.class).list();
+            transaction.commit();
+            transaction.rollback();
+            return users;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return users;
     }
 
     @Override
     public void cleanUsersTable() {
-        Session session = Util.getSessionFactory().openSession();
-        Transaction transaction = session.beginTransaction();
-        Query query = session.createSQLQuery
-                        ("DELETE FROM user")
-                .addEntity(User.class);
-        query.executeUpdate();
-        transaction.commit();
-        session.close();
+        try (Session session = Util.getSessionFactory().openSession()) {
+            Transaction transaction = session.beginTransaction();
+            session.createSQLQuery
+                            ("DELETE FROM user")
+                    .addEntity(User.class).executeUpdate();
+            transaction.commit();
+            transaction.rollback();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-
 }
